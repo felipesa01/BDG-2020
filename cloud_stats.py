@@ -83,11 +83,12 @@ def year_cover(collection, tile, anos, grafico = 'scatter'):
 
             
 def get_max(collection, tile, anos):
-    dfs_max = [] 
+    dfs_max = {} 
     for i in anos:
-        sql = "SELECT id, cover \
+        sql = "SELECT id, date_img, cover \
                FROM metadata_metrics \
                WHERE pathrow = '" + tile + "' \
+               and to_char(date_img, 'YYYY') = '" + i + "' \
                and cover = (SELECT max(cover) \
                             FROM metadata_metrics \
                             WHERE pathrow = '" + tile + "' \
@@ -97,8 +98,8 @@ def get_max(collection, tile, anos):
         
         engine = create_engine('postgresql://postgres:postgres@localhost/bdc3')
         df = pd.read_sql_query(sql,con=engine)
-        df.columns = ['id', "max_" + i]
-        dfs_max.append(df)
+        df.columns = ['id','data','max']
+        dfs_max[i] = df
     
     return dfs_max
 
@@ -109,11 +110,12 @@ def get_min(collection, tile, anos, zero=True):
     else:
         min_zero = 'and cover > 0'
         
-    dfs_min = [] 
+    dfs_min = {}
     for i in anos:
-        sql = "SELECT id, cover \
+        sql = "SELECT id, date_img, cover \
                FROM metadata_metrics \
                WHERE pathrow = '" + tile + "' \
+               and to_char(date_img, 'YYYY') = '" + i + "' \
                and cover = (SELECT min(cover) \
                             FROM metadata_metrics \
                             WHERE pathrow = '" + tile + "' \
@@ -123,8 +125,8 @@ def get_min(collection, tile, anos, zero=True):
         
         engine = create_engine('postgresql://postgres:postgres@localhost/bdc3')
         df = pd.read_sql_query(sql,con=engine)
-        df.columns = ['id', "min_" + i]
-        dfs_min.append(df)
+        df.columns = ['id','data','min']
+        dfs_min[i] = df
     
     return dfs_min
         
