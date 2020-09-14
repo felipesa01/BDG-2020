@@ -103,7 +103,12 @@ def get_max(collection, tile, anos):
     return dfs_max
 
 
-def get_min(collection, tile, anos):
+def get_min(collection, tile, anos, zero=True):
+    if zero:
+        min_zero = ''
+    else:
+        min_zero = 'and cover > 0'
+        
     dfs_min = [] 
     for i in anos:
         sql = "SELECT id, cover \
@@ -113,8 +118,8 @@ def get_min(collection, tile, anos):
                             FROM metadata_metrics \
                             WHERE pathrow = '" + tile + "' \
                             and to_char(date_img, 'YYYY') = '" + i + "' \
-                            and collection = '" + collection + "' \
-                            );"     
+                            and collection = '" + collection + "'" \
+                            + min_zero + ");"     
         
         engine = create_engine('postgresql://postgres:postgres@localhost/bdc3')
         df = pd.read_sql_query(sql,con=engine)
