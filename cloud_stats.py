@@ -80,3 +80,51 @@ def year_cover(collection, tile, anos, grafico = 'scatter'):
             df.plot(kind=grafico,x='data',y='nuvem', title = i, ax=axs[z]);
         else:
             df.plot(kind=grafico,x='data',y='nuvem', title = i);
+
+            
+def get_max(collection, tile, anos):
+    dfs_max = [] 
+    for i in anos:
+        sql = "SELECT id, cover \
+               FROM metadata_metrics \
+               WHERE pathrow = '" + tile + "' \
+               and cover = (SELECT max(cover) \
+                            FROM metadata_metrics \
+                            WHERE pathrow = '" + tile + "' \
+                            and to_char(date_img, 'YYYY') = '" + i + "' \
+                            and collection = '" + collection + "' \
+                            );"     
+        
+        engine = create_engine('postgresql://postgres:postgres@localhost/bdc3')
+        df = pd.read_sql_query(sql,con=engine)
+        df.columns = ['id', "max_" + i]
+        dfs_max.append(df)
+    
+    return dfs_max
+
+
+def get_min(collection, tile, anos):
+    dfs_min = [] 
+    for i in anos:
+        sql = "SELECT id, cover \
+               FROM metadata_metrics \
+               WHERE pathrow = '" + tile + "' \
+               and cover = (SELECT min(cover) \
+                            FROM metadata_metrics \
+                            WHERE pathrow = '" + tile + "' \
+                            and to_char(date_img, 'YYYY') = '" + i + "' \
+                            and collection = '" + collection + "' \
+                            );"     
+        
+        engine = create_engine('postgresql://postgres:postgres@localhost/bdc3')
+        df = pd.read_sql_query(sql,con=engine)
+        df.columns = ['id', "min_" + i]
+        dfs_min.append(df)
+    
+    return dfs_min
+        
+        
+        
+        
+        
+        
